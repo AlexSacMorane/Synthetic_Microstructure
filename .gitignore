@@ -5,3 +5,4 @@ fft/*
 
 # python environement
 .venv/*
+*.pyc
