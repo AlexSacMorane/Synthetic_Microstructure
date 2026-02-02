@@ -73,7 +73,7 @@ while not controler:
         N += 1
 
 # initialize the list of t
-t = np.linspace(0, N*2*np.pi, N*50)
+t = np.linspace(-2*np.pi, N*2*np.pi+2*np.pi, (N+1)*50)
 
 # generate the sample
 M_bin = np.ones((dim_sample, dim_sample, dim_sample))

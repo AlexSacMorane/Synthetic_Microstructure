@@ -13,7 +13,3 @@ Different algorithms are employed
 ## Addition of spheres 
 
 # Tools
-
-# TO DO
-
-- correct the spiral: periodicity
