@@ -14,3 +14,6 @@ Different algorithms are employed
 
 # Tools
 
+# TO DO
+
+- correct the spiral: periodicity
