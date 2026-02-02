@@ -10,7 +10,7 @@ Different algorithms are employed
 
 ## Spiral as an inclusion
 
-## Addition of spheres 
+## Addition of spheres 
 
 # Tools
 
