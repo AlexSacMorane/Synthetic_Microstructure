@@ -1,2 +1,7 @@
+# folder to save data
+
 vtk/*
 fft/*
+
+# python environement
+.venv/*
