@@ -13,3 +13,8 @@ Different algorithms are employed
 ## Addition of spheres 
 
 # Tools
+
+
+# TO DO
+
+Check periodicity for the the compute of sdf (use the extended micro)
