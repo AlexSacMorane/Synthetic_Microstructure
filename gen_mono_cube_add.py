@@ -2,10 +2,9 @@
 # Librairies
 #-------------------------------------------------------------------------------
 
-import skfmm, pickle
+import skfmm, pickle, skimage
 import numpy as np
 import matplotlib.pyplot as plt
-import porespy as ps
 
 from scipy.ndimage import label
 
@@ -225,7 +224,25 @@ if not(connected_x and connected_y and connected_z):
 # Minkowski functionals
 #-------------------------------------------------------------------------------
 
-# to do
+# M0: porosity
+M0 = 1 - np.sum(M_bin)/dim_sample**3
+
+# M1: specific surface area
+# extraction of the surface
+verts, faces, normals, values = skimage.measure.marching_cubes(M_bin, level=0.5, spacing=(1.0, 1.0, 1.0))
+# compute of the surface
+surface_area = skimage.measure.mesh_surface_area(verts, faces)
+# normalize by the volume
+M1 = surface_area / (dim_sample**3)
+
+# M2: mean curvature
+
+# M3: Euler characteristic 
+euler = skimage.measure.euler_number(M_bin, connectivity=1)
+# normalize by the volume
+M3 = euler / (dim_sample**3)
+
+print(f'M0 (porosity) = {M0:.3f}, M1 (specific surface area) = {M1:.3f}, M3 (Euler characteristic) = {M3:.3f} \n')
 
 #-------------------------------------------------------------------------------
 # fmm
