@@ -20,7 +20,9 @@ from compute_minkowski import compute_minkowski
 
 dim_sample = 250 # -
 porosity = 0.2 # -
-dim_interface = 4 # -
+dim_interface = 8 # -
+
+sample_id = '01'
 
 #-------------------------------------------------------------------------------
 # Generate the binary microstructure
@@ -83,13 +85,13 @@ print(round(1-np.sum(Microstructure)/(dim_sample**3),2), '/', porosity)
 
 # save
 dict_fft = {'M_microstructure': Microstructure}
-with open('fft/cyl_incl_dict_fft_00', 'wb') as handle:
+with open('fft/cyl_incl_dict_fft_'+sample_id, 'wb') as handle:
     pickle.dump(dict_fft, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
 # vtk file
 # change the array structure to verify the function
 Microstructure_vtk = np.transpose(Microstructure, (2, 1, 0))
-write_vtk_structured_points('vtk/cyl_incl_00.vtk', Microstructure_vtk, spacing=(1.0, 1.0, 1.0), origin=(0, 0, 0), binary=False)  
+write_vtk_structured_points('vtk/cyl_incl_'+sample_id+'.vtk', Microstructure_vtk, spacing=(1.0, 1.0, 1.0), origin=(0, 0, 0), binary=False)  
 
 #-------------------------------------------------------------------------------
 # Minkowski functionals
