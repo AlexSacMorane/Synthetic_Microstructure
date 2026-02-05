@@ -2,7 +2,7 @@
 # Librairies
 #-------------------------------------------------------------------------------
 
-import skfmm, pickle, skimage
+import skfmm, pickle
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -12,6 +12,7 @@ import matplotlib.pyplot as plt
 
 from fast_marching_tortuosity import compute_tortuosity_fast_marching
 from numpy_to_vtk import write_vtk_structured_points
+from compute_minkowski import compute_minkowski
 
 #-------------------------------------------------------------------------------
 # User
@@ -97,23 +98,7 @@ write_vtk_structured_points('vtk/sph_pore_' + sample_id + '.vtk', Microstructure
 # Minkowski functionals
 #-------------------------------------------------------------------------------
 
-# M0: porosity
-M0 = 1 - np.sum(M_bin)/dim_sample**3
-
-# M1: specific surface area
-# extraction of the surface
-verts, faces, normals, values = skimage.measure.marching_cubes(M_bin, level=0.5, spacing=(1.0, 1.0, 1.0))
-# compute of the surface
-surface_area = skimage.measure.mesh_surface_area(verts, faces)
-# normalize by the volume
-M1 = surface_area / (dim_sample**3)
-
-# M2: mean curvature
-
-# M3: Euler characteristic 
-euler = skimage.measure.euler_number(M_bin, connectivity=1)
-# normalize by the volume
-M3 = euler / (dim_sample**3)
+M0, M1, M2, M3 = compute_minkowski(M_bin)
 
 print(f'M0 (porosity) = {M0:.3f}, M1 (specific surface area) = {M1:.3f}, M3 (Euler characteristic) = {M3:.3f} \n')
 

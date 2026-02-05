@@ -15,6 +15,7 @@ from scipy.ndimage import label
 
 from numpy_to_vtk import write_vtk_structured_points
 from fast_marching_tortuosity import compute_tortuosity_fast_marching
+from compute_minkowski import compute_minkowski
 
 #-------------------------------------------------------------------------------
 # User
@@ -200,7 +201,10 @@ if not(connected_x and connected_y and connected_z):
 # Minkowski functionals
 #-------------------------------------------------------------------------------
 
-# to do
+M0, M1, M2, M3 = compute_minkowski(M_bin)
+
+print(f'M0 (porosity) = {M0:.3f}, M1 (specific surface area) = {M1:.3f}, M3 (Euler characteristic) = {M3:.3f} \n')
+
 
 #-------------------------------------------------------------------------------
 # fmm
