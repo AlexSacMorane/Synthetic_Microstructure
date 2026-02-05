@@ -24,9 +24,9 @@ from compute_minkowski import compute_minkowski
 dim_sample = 250 # -
 porosity = 0.2 # -
 dim_interface = 4 # -
-blobiness = 0.25 # -
+blobiness = 0.5 # -
 
-sample_id = '04'
+sample_id = '00'
 
 #-------------------------------------------------------------------------------
 # Generate the binary microstructure
@@ -42,7 +42,19 @@ print(round(1-np.sum(M_bin)/(dim_sample**3),2), '/', porosity)
 # Compute the sdf 
 #-------------------------------------------------------------------------------
 
-M_sd_phi = skfmm.distance(M_bin-0.5, dx = np.array([1, 1, 1]))
+# Extension of the sample (considering the periodic condition)
+# this operation is conducted on the 3 axes
+M_bin_extended = np.zeros((dim_sample+2*dim_sample, dim_sample+2*dim_sample, dim_sample+2*dim_sample))
+for l in range(3):
+    for c in range(3):
+        for h in range(3):
+            M_bin_extended[l*dim_sample:(l+1)*dim_sample, c*dim_sample:(c+1)*dim_sample, h*dim_sample:(h+1)*dim_sample] = M_bin
+
+# compute the sdf on the extended sample
+M_sd_extended = skfmm.distance(M_bin_extended-0.5, dx = np.array([1, 1, 1]))
+
+# extract the sdf for the original sample
+M_sd = M_sd_extended[dim_sample:2*dim_sample, dim_sample:2*dim_sample, dim_sample:2*dim_sample]
 
 #-------------------------------------------------------------------------------
 # Compute the microstructure
@@ -52,12 +64,12 @@ Microstructure = np.zeros((dim_sample, dim_sample, dim_sample))
 for i_x in range(dim_sample):
     for i_y in range(dim_sample):
         for i_z in range(dim_sample):
-            if M_sd_phi[i_x, i_y, i_z] > dim_interface/2: # inside the grain
+            if M_sd[i_x, i_y, i_z] > dim_interface/2: # inside the grain
                 Microstructure[i_x, i_y, i_z] = 1
-            elif M_sd_phi[i_x, i_y, i_z] < -dim_interface/2: # outside the grain
+            elif M_sd[i_x, i_y, i_z] < -dim_interface/2: # outside the grain
                 Microstructure[i_x, i_y, i_z] = 0
             else : # in the interface
-                Microstructure[i_x, i_y, i_z] = 0.5 + M_sd_phi[i_x, i_y, i_z]/dim_interface
+                Microstructure[i_x, i_y, i_z] = 0.5 + M_sd[i_x, i_y, i_z]/dim_interface
                 
 # check the porosity
 print(round(1-np.sum(Microstructure)/(dim_sample**3),2), '/', porosity)
@@ -204,7 +216,6 @@ if not(connected_x and connected_y and connected_z):
 M0, M1, M2, M3 = compute_minkowski(M_bin)
 
 print(f'M0 (porosity) = {M0:.3f}, M1 (specific surface area) = {M1:.3f}, M3 (Euler characteristic) = {M3:.3f} \n')
-
 
 #-------------------------------------------------------------------------------
 # fmm
