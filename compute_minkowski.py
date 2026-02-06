@@ -35,8 +35,7 @@ def compute_minkowski(M_bin):
 
     # M2: mean curvature
     # compute the local thickness of the solid phase
-    # method = 'dt' is faster but less accurate
-    M_local_thickness = ps.filters.local_thickness(M_bin, method='imj')
+    M_local_thickness = ps.filters.local_thickness(M_bin, method='dt')
     # compute the distribution of the local thickness
     data = ps.metrics.pore_size_distribution(M_local_thickness, bins=20, log=False)    
     # compute the average local thickness
