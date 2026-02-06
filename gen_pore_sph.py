@@ -56,12 +56,12 @@ Microstructure = np.zeros((dim_sample, dim_sample, dim_sample))
 for i_x in range(dim_sample):
     for i_y in range(dim_sample):
         for i_z in range(dim_sample):
-            if M_sd_phi[i_x, i_y, i_z] > dim_interface/2: # inside the grain
+            if M_sd[i_x, i_y, i_z] > dim_interface/2: # inside the grain
                 Microstructure[i_x, i_y, i_z] = 1
-            elif M_sd_phi[i_x, i_y, i_z] < -dim_interface/2: # outside the grain
+            elif M_sd[i_x, i_y, i_z] < -dim_interface/2: # outside the grain
                 Microstructure[i_x, i_y, i_z] = 0
             else : # in the interface
-                Microstructure[i_x, i_y, i_z] = 0.5 + M_sd_phi[i_x, i_y, i_z]/dim_interface
+                Microstructure[i_x, i_y, i_z] = 0.5 + M_sd[i_x, i_y, i_z]/dim_interface
                 
 # check the porosity
 print(round(1-np.sum(Microstructure)/(dim_sample**3),2), '/', porosity)
