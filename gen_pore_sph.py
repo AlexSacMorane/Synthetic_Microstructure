@@ -46,7 +46,7 @@ for i_x in range(dim_sample):
 # Compute the sdf 
 #-------------------------------------------------------------------------------
 
-M_sd_phi = skfmm.distance(M_bin-0.5, dx = np.array([1, 1, 1]))
+M_sd = skfmm.distance(M_bin-0.5, dx = np.array([1, 1, 1]))
 
 #-------------------------------------------------------------------------------
 # Compute the microstructure
