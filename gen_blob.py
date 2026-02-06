@@ -35,9 +35,6 @@ sample_id = '00'
 # generate the sample
 M_bin = ps.generators.blobs(shape=[dim_sample, dim_sample, dim_sample], porosity=1-porosity, blobiness=blobiness, periodic=True)
 
-# verify the porosity with the binary 
-print(round(1-np.sum(M_bin)/(dim_sample**3),2), '/', porosity)
-
 #-------------------------------------------------------------------------------
 # Compute the sdf 
 #-------------------------------------------------------------------------------
@@ -71,9 +68,6 @@ for i_x in range(dim_sample):
             else : # in the interface
                 Microstructure[i_x, i_y, i_z] = 0.5 + M_sd[i_x, i_y, i_z]/dim_interface
                 
-# check the porosity
-print(round(1-np.sum(Microstructure)/(dim_sample**3),2), '/', porosity)
-
 #-------------------------------------------------------------------------------
 # Output
 #-------------------------------------------------------------------------------
