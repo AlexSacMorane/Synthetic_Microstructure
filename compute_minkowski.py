@@ -3,6 +3,7 @@
 #-------------------------------------------------------------------------------
 
 import numpy as np
+import porespy as ps
 import skimage
 
 #-------------------------------------------------------------------------------
@@ -33,8 +34,15 @@ def compute_minkowski(M_bin):
     M1 = surface_area / (dim_sample**3)
 
     # M2: mean curvature
-    # to do
-    M2 = 0
+    # compute the local thickness of the solid phase
+    # method = 'dt' is faster but less accurate
+    M_local_thickness = ps.filters.local_thickness(M_bin, method='imj')
+    # compute the distribution of the local thickness
+    data = ps.metrics.pore_size_distribution(M_local_thickness, bins=20, log=False)    
+    # compute the average local thickness
+    mean_local_thickness = np.sum(data.bin_centers*data.pdf)/np.sum(data.pdf)+data.bin_widths[-1]/2
+    # normalize by the volume
+    M2 = mean_local_thickness / (dim_sample**3)
 
     # M3: Euler characteristic 
     euler = skimage.measure.euler_number(M_bin, connectivity=1)
