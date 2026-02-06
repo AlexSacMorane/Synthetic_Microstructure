@@ -63,9 +63,6 @@ for i_x in range(dim_sample):
             else : # in the interface
                 Microstructure[i_x, i_y, i_z] = 0.5 + M_sd[i_x, i_y, i_z]/dim_interface
                 
-# check the porosity
-print(round(1-np.sum(Microstructure)/(dim_sample**3),2), '/', porosity)
-
 #-------------------------------------------------------------------------------
 # Output
 #-------------------------------------------------------------------------------
@@ -97,6 +94,8 @@ write_vtk_structured_points('vtk/sph_pore_' + sample_id + '.vtk', Microstructure
 #-------------------------------------------------------------------------------
 # Minkowski functionals
 #-------------------------------------------------------------------------------
+
+print("Computing the Minkowski functionals")
 
 M0, M1, M2, M3 = compute_minkowski(M_bin)
 
