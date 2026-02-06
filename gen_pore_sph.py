@@ -100,7 +100,7 @@ write_vtk_structured_points('vtk/sph_pore_' + sample_id + '.vtk', Microstructure
 
 M0, M1, M2, M3 = compute_minkowski(M_bin)
 
-print(f'M0 (porosity) = {M0:.3f}, M1 (specific surface area) = {M1:.3f}, M3 (Euler characteristic) = {M3:.3f} \n')
+print(f'M0 (porosity) = {M0:.3f}, M1 (specific surface area) = {M1:.3e}, M2 (mean grain size) = {M2:.3e}, M3 (Euler characteristic) = {M3:.3e} \n')
 
 #-------------------------------------------------------------------------------
 # fmm
