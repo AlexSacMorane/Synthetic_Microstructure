@@ -39,6 +39,8 @@ M_bin = ps.generators.blobs(shape=[dim_sample, dim_sample, dim_sample], porosity
 # Compute the sdf 
 #-------------------------------------------------------------------------------
 
+print("Compute the sdf")
+
 # Extension of the sample (considering the periodic condition)
 # this operation is conducted on the 3 axes
 M_bin_extended = np.zeros((dim_sample+2*dim_sample, dim_sample+2*dim_sample, dim_sample+2*dim_sample))
@@ -99,6 +101,8 @@ write_vtk_structured_points('vtk/blob_'+sample_id+'.vtk', Microstructure_vtk, sp
 #-------------------------------------------------------------------------------
 # Check the connectivity and extract the connected pores
 #-------------------------------------------------------------------------------
+
+print("Check the pore connectivity")
 
 # Extension of the sample (considering the periodic condition)
 # this operation is conducted on the 3 axes
@@ -161,6 +165,8 @@ if not(connected_x and connected_y and connected_z):
 # Check the connectivity and extract the connected solids
 #-------------------------------------------------------------------------------
 
+print("Check the solid connectivity")
+
 # label the solids in the extended samples
 labelled_image_x, num_features = label(M_bin_extended_x)
 labelled_image_y, num_features = label(M_bin_extended_y)
@@ -206,6 +212,8 @@ if not(connected_x and connected_y and connected_z):
 #-------------------------------------------------------------------------------
 # Minkowski functionals
 #-------------------------------------------------------------------------------
+
+print("Compute the Minkowski functionals")
 
 M0, M1, M2, M3 = compute_minkowski(M_bin)
 
