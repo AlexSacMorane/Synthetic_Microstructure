@@ -45,7 +45,7 @@ for i_x in range(off_set, off_set + dim_pore):
 # Compute the sdf 
 #-------------------------------------------------------------------------------
 
-M_sd_phi = skfmm.distance(M_bin-0.5, dx = np.array([1, 1, 1]))
+M_sd = skfmm.distance(M_bin-0.5, dx = np.array([1, 1, 1]))
 
 #-------------------------------------------------------------------------------
 # Compute the microstructure
@@ -55,16 +55,13 @@ Microstructure = np.zeros((dim_sample, dim_sample, dim_sample))
 for i_x in range(dim_sample):
     for i_y in range(dim_sample):
         for i_z in range(dim_sample):
-            if M_sd_phi[i_x, i_y, i_z] > dim_interface/2: # inside the grain
+            if M_sd[i_x, i_y, i_z] > dim_interface/2: # inside the grain
                 Microstructure[i_x, i_y, i_z] = 1
-            elif M_sd_phi[i_x, i_y, i_z] < -dim_interface/2: # outside the grain
+            elif M_sd[i_x, i_y, i_z] < -dim_interface/2: # outside the grain
                 Microstructure[i_x, i_y, i_z] = 0
             else : # in the interface
-                Microstructure[i_x, i_y, i_z] = 0.5 + M_sd_phi[i_x, i_y, i_z]/dim_interface
+                Microstructure[i_x, i_y, i_z] = 0.5 + M_sd[i_x, i_y, i_z]/dim_interface
                 
-# check the porosity
-print(round(1-np.sum(Microstructure)/(dim_sample**3),2), '/', porosity)
-
 #-------------------------------------------------------------------------------
 # Output
 #-------------------------------------------------------------------------------
@@ -97,9 +94,11 @@ write_vtk_structured_points('vtk/rect_incl_'+sample_id+'.vtk', Microstructure_vt
 # Minkowski functionals
 #-------------------------------------------------------------------------------
 
+print("Computing the Minkowski functionals")
+
 M0, M1, M2, M3 = compute_minkowski(M_bin)
 
-print(f'M0 (porosity) = {M0:.3f}, M1 (specific surface area) = {M1:.3f}, M3 (Euler characteristic) = {M3:.3f} \n')
+print(f'M0 (porosity) = {M0:.3f}, M1 (specific surface area) = {M1:.3e}, M2 (mean grain size) = {M2:.3e}, M3 (Euler characteristic) = {M3:.3e} \n')
 
 #-------------------------------------------------------------------------------
 # fmm

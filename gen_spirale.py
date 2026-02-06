@@ -43,9 +43,9 @@ def distance_to_spiral(t, x, y, z, R_spiral, N, dim_sample):
 dim_sample = 250 # -
 porosity = 0.2 # -
 dim_interface = 4 # -
-tortuosity_spiral = 1.1 # -
+tortuosity_spiral = 4 # -
 
-sample_id = '00'
+sample_id = '02'
 
 #-------------------------------------------------------------------------------
 # Generate the binary microstructure
@@ -91,9 +91,6 @@ for i_x in range(dim_sample):
             if dist <= R_section:
                 M_bin[i_x, i_y, i_z] = 0    
 
-# verify the porosity with the binary 
-print(round(1-np.sum(M_bin)/(dim_sample**3),2), '/', porosity)
-
 #-------------------------------------------------------------------------------
 # Compute the sdf 
 #-------------------------------------------------------------------------------
@@ -124,9 +121,6 @@ for i_x in range(dim_sample):
             else : # in the interface
                 Microstructure[i_x, i_y, i_z] = 0.5 + M_sd[i_x, i_y, i_z]/dim_interface
                 
-# check the porosity
-print(round(1-np.sum(Microstructure)/(dim_sample**3),2), '/', porosity)
-
 #-------------------------------------------------------------------------------
 # Output
 #-------------------------------------------------------------------------------
@@ -159,9 +153,11 @@ write_vtk_structured_points('vtk/spiral_'+sample_id+'.vtk', Microstructure_vtk, 
 # Minkowski functionals
 #-------------------------------------------------------------------------------
 
+print("Computing the Minkowski functionals")
+
 M0, M1, M2, M3 = compute_minkowski(M_bin)
 
-print(f'M0 (porosity) = {M0:.3f}, M1 (specific surface area) = {M1:.3f}, M3 (Euler characteristic) = {M3:.3f} \n')
+print(f'M0 (porosity) = {M0:.3f}, M1 (specific surface area) = {M1:.3e}, M2 (mean grain size) = {M2:.3e}, M3 (Euler characteristic) = {M3:.3e} \n')
 
 #-------------------------------------------------------------------------------
 # fmm
