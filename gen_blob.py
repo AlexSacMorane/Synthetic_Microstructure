@@ -24,9 +24,9 @@ from compute_minkowski import compute_minkowski
 dim_sample = 250 # -
 porosity = 0.2 # -
 dim_interface = 4 # -
-blobiness = 0.8 # -
+blobiness = 0.25 # -
 
-sample_id = '01'
+sample_id = '02'
 
 #-------------------------------------------------------------------------------
 # Generate the binary microstructure
@@ -75,7 +75,6 @@ M_bin_extended[dim_interface+dim_sample:, :dim_interface, dim_interface+dim_samp
 M_bin_extended[dim_interface+dim_sample:, dim_interface+dim_sample:, :dim_interface] = M_bin[:dim_interface, :dim_interface, -dim_interface:]
 # periodicity +x+y+z
 M_bin_extended[dim_interface+dim_sample:, dim_interface+dim_sample:, dim_interface+dim_sample:] = M_bin[:dim_interface, :dim_interface, :dim_interface]
-
 
 # compute the sdf on the extended sample
 M_sd_extended = skfmm.distance(M_bin_extended-0.5, dx = np.array([1, 1, 1]))
