@@ -24,9 +24,9 @@ from compute_minkowski import compute_minkowski
 dim_sample = 250 # -
 porosity = 0.2 # -
 dim_interface = 4 # -
-blobiness = 0.5 # -
+blobiness = 0.8 # -
 
-sample_id = '00'
+sample_id = '01'
 
 #-------------------------------------------------------------------------------
 # Generate the binary microstructure
@@ -43,17 +43,45 @@ print("Compute the sdf")
 
 # Extension of the sample (considering the periodic condition)
 # this operation is conducted on the 3 axes
-M_bin_extended = np.zeros((dim_sample+2*dim_sample, dim_sample+2*dim_sample, dim_sample+2*dim_sample))
-for l in range(3):
-    for c in range(3):
-        for h in range(3):
-            M_bin_extended[l*dim_sample:(l+1)*dim_sample, c*dim_sample:(c+1)*dim_sample, h*dim_sample:(h+1)*dim_sample] = M_bin
+M_bin_extended = np.zeros((dim_sample+2*dim_interface, dim_sample+2*dim_interface, dim_sample+2*dim_interface))
+# main sample
+M_bin_extended[dim_interface:dim_interface+dim_sample, dim_interface:dim_interface+dim_sample, dim_interface:dim_interface+dim_sample] = M_bin
+# periodicity -x
+M_bin_extended[:dim_interface, dim_interface:dim_interface+dim_sample, dim_interface:dim_interface+dim_sample] = M_bin[-dim_interface:, :, :]
+# periodicity +x
+M_bin_extended[dim_interface+dim_sample:, dim_interface:dim_interface+dim_sample, dim_interface:dim_interface+dim_sample] = M_bin[:dim_interface, :, :]
+# periodicity -y
+M_bin_extended[dim_interface:dim_interface+dim_sample, :dim_interface, dim_interface:dim_interface+dim_sample] = M_bin[:, -dim_interface:, :]
+# periodicity +y
+M_bin_extended[dim_interface:dim_interface+dim_sample, dim_interface+dim_sample:, dim_interface:dim_interface+dim_sample] = M_bin[:, :dim_interface, :]
+# periodicity -z
+M_bin_extended[dim_interface:dim_interface+dim_sample, dim_interface:dim_interface+dim_sample, :dim_interface] = M_bin[:, :, -dim_interface:]
+# periodicity +z
+M_bin_extended[dim_interface:dim_interface+dim_sample, dim_interface:dim_interface+dim_sample, dim_interface+dim_sample:] = M_bin[:, :, :dim_interface]
+
+# periodicity -x-y-z
+M_bin_extended[:dim_interface, :dim_interface, :dim_interface] = M_bin[-dim_interface:, -dim_interface:, -dim_interface:]
+# periodicity -x-y+z
+M_bin_extended[:dim_interface, :dim_interface, dim_interface+dim_sample:] = M_bin[-dim_interface:, -dim_interface:, :dim_interface]
+# periodicity -x+y-z
+M_bin_extended[:dim_interface, dim_interface+dim_sample:, :dim_interface] = M_bin[-dim_interface:, :dim_interface, -dim_interface:]
+# periodicity -x+y+z
+M_bin_extended[:dim_interface, dim_interface+dim_sample:, dim_interface+dim_sample:] = M_bin[-dim_interface:, :dim_interface, :dim_interface]
+# periodicity +x-y-z
+M_bin_extended[dim_interface+dim_sample:, :dim_interface, :dim_interface] = M_bin[:dim_interface, -dim_interface:, -dim_interface:]
+# periodicity +x-y+z
+M_bin_extended[dim_interface+dim_sample:, :dim_interface, dim_interface+dim_sample:] = M_bin[:dim_interface, -dim_interface:, :dim_interface]
+# periodicity +x+y-z
+M_bin_extended[dim_interface+dim_sample:, dim_interface+dim_sample:, :dim_interface] = M_bin[:dim_interface, :dim_interface, -dim_interface:]
+# periodicity +x+y+z
+M_bin_extended[dim_interface+dim_sample:, dim_interface+dim_sample:, dim_interface+dim_sample:] = M_bin[:dim_interface, :dim_interface, :dim_interface]
+
 
 # compute the sdf on the extended sample
 M_sd_extended = skfmm.distance(M_bin_extended-0.5, dx = np.array([1, 1, 1]))
 
 # extract the sdf for the original sample
-M_sd = M_sd_extended[dim_sample:2*dim_sample, dim_sample:2*dim_sample, dim_sample:2*dim_sample]
+M_sd = M_sd_extended[dim_interface:dim_interface+dim_sample, dim_interface:dim_interface+dim_sample, dim_interface:dim_interface+dim_sample]
 
 #-------------------------------------------------------------------------------
 # Compute the microstructure
@@ -213,11 +241,11 @@ if not(connected_x and connected_y and connected_z):
 # Minkowski functionals
 #-------------------------------------------------------------------------------
 
-print("Compute the Minkowski functionals")
+print("\nCompute the Minkowski functionals")
 
 M0, M1, M2, M3 = compute_minkowski(M_bin)
 
-print(f'M0 (porosity) = {M0:.3f}, M1 (specific surface area) = {M1:.3f}, M3 (Euler characteristic) = {M3:.3f} \n')
+print(f'M0 (porosity) = {M0:.3f}, M1 (specific surface area) = {M1:.3e}, M2 (mean grain size) = {M2:.3e}, M3 (Euler characteristic) = {M3:.3e} \n')
 
 #-------------------------------------------------------------------------------
 # fmm
