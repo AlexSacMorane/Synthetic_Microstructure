@@ -25,9 +25,9 @@ porosity = 0.2 # -
 dim_interface = 4 # -
 size_x = 2*dim_interface # -
 size_y = 2*dim_interface # -
-size_z = 8*dim_interface # -
+size_z = 10*dim_interface # -
 
-sample_id = '00'
+sample_id = '01'
 
 #-------------------------------------------------------------------------------
 # Generate the binary microstructure
