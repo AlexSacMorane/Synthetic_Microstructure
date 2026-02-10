@@ -23,9 +23,9 @@ from compute_minkowski import compute_minkowski
 dim_sample = 250 # -
 porosity = 0.2 # -
 dim_interface = 4 # -
-radius_sphere = dim_interface # -
+radius_sphere = 3*dim_interface # -
 
-sample_id = '00'
+sample_id = '02'
 
 #-------------------------------------------------------------------------------
 # Generate the binary microstructure
@@ -71,6 +71,8 @@ while 1-np.sum(M_bin)/(dim_sample**3) > porosity:
 #-------------------------------------------------------------------------------
 # Compute the sdf 
 #-------------------------------------------------------------------------------
+
+print("Compute the sdf")
 
 # Extension of the sample (considering the periodic condition)
 # this operation is conducted on the 3 axes
@@ -160,6 +162,8 @@ write_vtk_structured_points('vtk/mono_spheres_add_'+sample_id+'.vtk', Microstruc
 # Check the connectivity and extract the connected pores
 #-------------------------------------------------------------------------------
 
+print("Check the pore connectivity")
+
 # extend the sample (considering the periodic condition)
 # this operation is conducted on the 3 axes
 M_bin_extended_x = np.zeros((dim_sample, dim_sample+2*dim_sample, dim_sample+2*dim_sample))
@@ -220,6 +224,8 @@ if not(connected_x and connected_y and connected_z):
 #-------------------------------------------------------------------------------
 # Check the connectivity and extract the connected solids
 #-------------------------------------------------------------------------------
+
+print("Check the solid connectivity")
 
 # label the solids in the extended samples
 labelled_image_x, num_features = label(M_bin_extended_x)
