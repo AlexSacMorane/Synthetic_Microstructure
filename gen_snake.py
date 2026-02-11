@@ -25,8 +25,9 @@ porosity = 0.2 # -
 dim_interface = 4 # -
 radius_snake = 1.5*dim_interface # -
 number_snakes = 9 # -
+noise = 5 # -
 
-sample_id = '01'
+sample_id = '02'
 
 #-------------------------------------------------------------------------------
 # Generate the binary microstructure
@@ -57,7 +58,6 @@ while np.sum(M_bin)/(dim_sample**3) > 1-porosity:
     else:
         for i_snake in range(number_snakes):
             center_snake = L_center_snake[i_snake]
-            noise = 3
             if i_snake%3 == 0:
                 displacement = np.array([1+noise, np.random.randint(0,2*noise+1), np.random.randint(0,2*noise+1)])
             elif i_snake%3 == 1:
