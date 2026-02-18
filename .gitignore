@@ -3,6 +3,7 @@
 vtk/*
 fft/*
 movie/*
+png/*
 
 # python environement
 .venv/*
