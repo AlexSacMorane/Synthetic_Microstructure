@@ -2,7 +2,7 @@
 # Librairies
 #-------------------------------------------------------------------------------
 
-import skfmm, pickle
+import skfmm, pickle, math
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -15,37 +15,111 @@ from fast_marching_tortuosity import compute_tortuosity_fast_marching
 from compute_minkowski import compute_minkowski
 
 #-------------------------------------------------------------------------------
+
+def distance_to_line(t, x, y, z, R_line, N, dim_sample):
+    '''
+    Compute the distance of a point (x,y,z) to a line parameterized by t and defined by a radius R_line, the number of turns N, and a height of dim_sample.
+    
+    Several distances are obtained for different values of t. The minimum distance is returned.
+    '''
+    # init
+    dist2 = []
+    # iterate over t
+    for ti in t:
+        # determine the index of the turn
+        i_turn = int(ti//np.pi)
+        # compute the position along the line
+        if i_turn % 2 == 0:
+            x_line = R_line*np.sin(math.pi - ti) + dim_sample/2
+            z_line = R_line*np.cos(math.pi - ti) + R_line + i_turn*2*R_line
+        else :
+            x_line = R_line*np.sin(ti) + dim_sample/2
+            z_line = R_line*np.cos(ti) + R_line + i_turn*2*R_line
+        y_line = dim_sample/2
+        # compute the distance from the point to the line
+        dist_i2 = (x - x_line)**2 + (y - y_line)**2 + (z - z_line)**2
+        dist2.append(dist_i2)    
+
+    return min(dist2)**0.5
+
+#-------------------------------------------------------------------------------
 # User
 #-------------------------------------------------------------------------------
 
-dim_sample = 150 # -
+dim_sample = 250 # -
 porosity = 0.2 # -
-dim_interface = 12 # -
+dim_interface = 4 # -
+tortuosity_line = 2 # -
 
-sample_id = '02'
+sample_id = '00'
 
 #-------------------------------------------------------------------------------
-# Main
+# Generate the binary microstructure
 #-------------------------------------------------------------------------------
 
-# generate the solid (1)
+# compute the linear size of the line
+L_line = dim_sample*tortuosity_line
+
+# iterate on the number of turns
+controler = False
+# number of turns of the line
+N = 1
+while not controler:
+    # compute the amplitude of the line
+    R_cercle = L_line/np.pi/N
+    # compute the section area of the line
+    A_line = porosity*(dim_sample**3)/L_line 
+    # compute the radius of the section
+    R_section = (A_line/np.pi)**0.5
+    if R_section < dim_interface:
+        raise ValueError('the tortuosity is too large')
+    # control
+    if 2*(R_cercle + R_section) < dim_sample:
+        controler = True
+    else:
+        N += 1
+
+
+# initialize the list of t
+t = np.linspace(-np.pi, N*np.pi+np.pi, (N+2)*50)
+
+#-------------------------------------------------------------------------------
+# plot (end test)
+#-------------------------------------------------------------------------------
+
+
+# generate the sample
+counter = 0
 M_bin = np.ones((dim_sample, dim_sample, dim_sample))
-
-# determine the size to verify the porosity
-dim_pore = int((porosity * dim_sample**2)**(1/2))
-# determine the offset to centerized the pore
-off_set = int((dim_sample - dim_pore)/2)
-
-# generate the pore (0)
-for i_x in range(off_set, off_set + dim_pore):
-    for i_y in range(off_set, off_set + dim_pore):
-        M_bin[i_x, i_y, :] = 0
+for i_x in range(max(int(dim_sample/2-R_section-R_cercle)-1, 0),
+                 min(int(dim_sample/2+R_section+R_cercle)+3, dim_sample)):
+    for i_y in range(max(int(dim_sample/2-R_section)-1, 0),
+                     min(int(dim_sample/2+R_section)+3, dim_sample)):
+        for i_z in range(dim_sample):
+            counter += 1
+            # user interface
+            if counter % 50000 == 0:
+                print(round((i_z + i_y*dim_sample + i_x*dim_sample**2)/dim_sample**3*100, 2), '% done')
+            # compute the distance to the line
+            dist = distance_to_line(t, i_x, i_y, i_z, R_cercle, N, dim_sample)
+            # check if the point is inside the spiral section
+            if dist <= R_section:
+                M_bin[i_x, i_y, i_z] = 0    
 
 #-------------------------------------------------------------------------------
 # Compute the sdf 
 #-------------------------------------------------------------------------------
 
-M_sd = skfmm.distance(M_bin-0.5, dx = np.array([1, 1, 1]))
+# Extension of the sample (considering the periodic condition)
+M_bin_extended = np.zeros((dim_sample, dim_sample, dim_sample+2*dim_sample))
+for h in range(3):
+    M_bin_extended[:, :, h*dim_sample:(h+1)*dim_sample] = M_bin
+
+# compute the sdf on the extended sample
+M_sd_extended = skfmm.distance(M_bin_extended-0.5, dx = np.array([1, 1, 1]))
+
+# extract the sdf for the original sample
+M_sd = M_sd_extended[:, :, dim_sample:2*dim_sample]
 
 #-------------------------------------------------------------------------------
 # Compute the microstructure
@@ -82,13 +156,13 @@ for i_x in range(dim_sample):
 
 # save
 dict_fft = {'M_microstructure': Microstructure}
-with open('fft/rect_incl/dict_fft_'+sample_id, 'wb') as handle:
+with open('fft/circle/dict_fft_'+sample_id, 'wb') as handle:
     pickle.dump(dict_fft, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
 # vtk file
 # change the array structure to verify the function
 Microstructure_vtk = np.transpose(Microstructure, (2, 1, 0))
-write_vtk_structured_points('vtk/rect_incl/rect_incl_'+sample_id+'.vtk', Microstructure_vtk, spacing=(1.0, 1.0, 1.0), origin=(0, 0, 0), binary=False)  
+write_vtk_structured_points('vtk/circle/circle_'+sample_id+'.vtk', Microstructure_vtk, spacing=(1.0, 1.0, 1.0), origin=(0, 0, 0), binary=False)  
 
 #-------------------------------------------------------------------------------
 # Minkowski functionals
@@ -104,6 +178,7 @@ print(f'M0 (porosity) = {M0:.3f}, M1 (specific surface area) = {M1:.3e}, M2 (mea
 # fmm
 #-------------------------------------------------------------------------------
 
+# compute the geometrical tortuosities 
 print("Computing tortuosity on x for solid")
 tau_x = compute_tortuosity_fast_marching(M_bin, extraction=[0, dim_sample, 0, dim_sample], dx=1.0, neighborhood=6) 
 print("Computing tortuosity on y for solid")
@@ -113,5 +188,5 @@ tau_z = compute_tortuosity_fast_marching(np.transpose(M_bin, (2, 0, 1)), extract
 print(f"tau_x={tau_x:.3f}, tau_y={tau_y:.3f}, tau_z={tau_z:.3f}\n")
 
 print("Computing tortuosity on z for pore")
-tau_z = compute_tortuosity_fast_marching(1-np.transpose(M_bin, (2, 0, 1)), extraction=[0, dim_sample, 0, dim_sample], dx=1.0, neighborhood=6) 
+tau_z = compute_tortuosity_fast_marching(np.transpose(1-M_bin, (2, 0, 1)), extraction=[0, dim_sample, 0, dim_sample], dx=1.0, neighborhood=6) 
 print(f"tau_z={tau_z:.3f}")
