@@ -21,10 +21,10 @@ from compute_minkowski import compute_minkowski
 # User
 #-------------------------------------------------------------------------------
 
-dim_sample = 250 # -
+dim_sample = 150 # -
 porosity = 0.2 # -
 dim_interface = 4 # -
-blobiness = 0.25 # -
+blobiness = 1 # -
 
 sample_id = '02'
 
@@ -117,13 +117,13 @@ for i_x in range(dim_sample):
 
 # save
 dict_fft = {'M_microstructure': Microstructure}
-with open('fft/blob_dict_fft_'+sample_id, 'wb') as handle:
+with open('fft/blob/dict_fft_'+sample_id, 'wb') as handle:
     pickle.dump(dict_fft, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
 # vtk file
 # change the array structure to verify the function
 Microstructure_vtk = np.transpose(Microstructure, (2, 1, 0))
-write_vtk_structured_points('vtk/blob_'+sample_id+'.vtk', Microstructure_vtk, spacing=(1.0, 1.0, 1.0), origin=(0, 0, 0), binary=False)  
+write_vtk_structured_points('vtk/blob/blob_'+sample_id+'.vtk', Microstructure_vtk, spacing=(1.0, 1.0, 1.0), origin=(0, 0, 0), binary=False)  
 
 #-------------------------------------------------------------------------------
 # Check the connectivity and extract the connected pores
