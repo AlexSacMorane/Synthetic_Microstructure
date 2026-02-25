@@ -20,11 +20,11 @@ from compute_minkowski import compute_minkowski
 # User
 #-------------------------------------------------------------------------------
 
-dim_sample = 250 # -
+dim_sample = 150 # -
 porosity = 0.2 # -
 dim_interface = 4 # -
-radius_snake = 1.5*dim_interface # -
 number_snakes = 9 # -
+radius_snake = 5 # -
 noise = 5 # -
 
 sample_id = '02'
