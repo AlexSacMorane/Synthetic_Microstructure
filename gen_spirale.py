@@ -43,9 +43,9 @@ def distance_to_spiral(t, x, y, z, R_spiral, N, dim_sample):
 dim_sample = 150 # -
 porosity = 0.2 # -
 dim_interface = 4 # -
-tortuosity_spiral = 2 # -
+tortuosity_spiral = 4 # -
 
-sample_id = '01'
+sample_id = '02'
 
 #-------------------------------------------------------------------------------
 # Generate the binary microstructure
