@@ -76,12 +76,12 @@ def compute_tortuosity_fast_marching(pore, extraction, dx=1.0, neighborhood=6):
     outlet_dists = dist[Nx-1, extraction[0]:extraction[1], extraction[2]:extraction[3]][outlet_mask]
 
     if outlet_dists.size == 0:
-        raise RuntimeError("No reachable outlet pores found. Check connectivity or BCs.")
-
-    mean_path = float(np.mean(outlet_dists))
-    tau = mean_path / L
-
-    return tau
+        print("No reachable outlet pores found. Check connectivity or BCs.")
+        return 0
+    else: 
+        mean_path = float(np.mean(outlet_dists))
+        tau = mean_path / L
+        return tau
 
 if __name__ == '__main__':
     # Quick self-test on a straight channel: tortuosity should be ~1.0
