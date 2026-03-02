@@ -5,6 +5,7 @@
 import skfmm, pickle
 import numpy as np
 import matplotlib.pyplot as plt
+import porespy as ps
 
 from scipy.ndimage import label, binary_dilation
 
@@ -25,7 +26,7 @@ porosity = 0.5 # -
 dim_interface = 4 # -
 width_tampon = 4 # -
 
-sample_id = '04'
+sample_id = 'special'
 
 #-------------------------------------------------------------------------------
 # Tampon
@@ -86,6 +87,30 @@ while 1-np.sum(M_bin)/(dim_sample**3) > porosity:
                 # assign
                 if M_bin[i_x, i_y, i_z] == 0:
                     M_bin[i_x, i_y, i_z] = value
+
+'''# generate the sample
+M_bin = np.zeros((tampon.shape[1]+width_tampon, tampon.shape[1]+width_tampon, tampon.shape[0]))
+# faces
+for i in range(width_tampon):
+    M_bin[i, :-width_tampon, :] = np.flip(np.flip(np.transpose(tampon, (1, 0)), 0), 1)
+# faces
+for i in range(width_tampon):
+    M_bin[width_tampon:, i, :] = np.flip(np.transpose(tampon, (1, 0)), 1)
+# face
+for i in range(width_tampon):
+    M_bin[:-width_tampon, -1-i, :] = np.flip(np.flip(np.transpose(tampon, (1, 0)), 1), 0)
+# face
+for i in range(width_tampon):
+    M_bin[-1-i, width_tampon:, :] = np.flip(np.transpose(tampon, (1, 0)), 1)
+# blob in the center
+M_bin[width_tampon:-width_tampon,width_tampon:-width_tampon,:] = ps.generators.blobs(shape=[M_bin.shape[0]-2*width_tampon, M_bin.shape[1]-2*width_tampon, M_bin.shape[2]], porosity=0.8, blobiness=0.5, periodic=False)
+
+# vtk file
+# change the array structure to verify the function
+Microstructure_vtk = np.transpose(M_bin, (2, 1, 0))
+write_vtk_structured_points('vtk/navier/navier_'+sample_id+'.vtk', Microstructure_vtk, spacing=(1.0, 1.0, 1.0), origin=(0, 0, 0), binary=False)  
+
+raise ValueError('stop')'''
 
 #-------------------------------------------------------------------------------
 # Compute the sdf 
