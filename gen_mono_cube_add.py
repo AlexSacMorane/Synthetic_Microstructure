@@ -48,15 +48,15 @@ while 1-np.sum(M_bin)/(dim_sample**3) > porosity:
             for i_z in range(int(position_000[2]), int(position_000[2]+size_cube)):
                 # periodic condition (x-axis)
                 if i_x >= dim_sample :
-                    i_x = i_x - dim_sample
+                    i_x_p = i_x - dim_sample
                 # periodic condition (y-axis)
                 if i_y >= dim_sample :
-                    i_y = i_y - dim_sample
+                    i_y_p = i_y - dim_sample
                 # periodic condition (z-axis)
                 if i_z >= dim_sample :
-                    i_z = i_z - dim_sample
+                    i_z_p = i_z - dim_sample
                 # assign
-                M_bin[i_x, i_y, i_z] = 1
+                M_bin[i_x_p, i_y_p, i_z_p] = 1
 
 #-------------------------------------------------------------------------------
 # Compute the sdf 
