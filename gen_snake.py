@@ -21,13 +21,13 @@ from compute_minkowski import compute_minkowski
 #-------------------------------------------------------------------------------
 
 dim_sample = 150 # -
-porosity = 0.2 # -
+porosity = 0.1 # -
 dim_interface = 4 # -
 number_snakes = 9 # -
 radius_snake = 5 # -
 noise = 5 # -
 
-sample_id = '02'
+sample_id = '32'
 
 #-------------------------------------------------------------------------------
 # Generate the binary microstructure
@@ -102,21 +102,27 @@ while np.sum(M_bin)/(dim_sample**3) > 1-porosity:
                     if dist < radius_snake:
                         # periodic condition (x-axis)
                         if i_x >= dim_sample :
-                            i_x = i_x - dim_sample
+                            i_x_p = i_x - dim_sample
                         if i_x < 0 :
-                            i_x = i_x + dim_sample
+                            i_x_p = i_x + dim_sample
+                        else :
+                            i_x_p = i_x
                         # periodic condition (y-axis)
                         if i_y >= dim_sample :
                             i_y = i_y - dim_sample
                         if i_y < 0 :
                             i_y = i_y + dim_sample
+                        else :
+                            i_y_p = i_y
                         # periodic condition (z-axis)
                         if i_z >= dim_sample :
                             i_z = i_z - dim_sample
                         if i_z < 0 :
                             i_z = i_z + dim_sample
+                        else :
+                            i_z_p = i_z
                         # assign
-                        M_bin[i_x, i_y, i_z] = 0
+                        M_bin[i_x_p, i_y_p, i_z_p] = 0
 
 #-------------------------------------------------------------------------------
 # Compute the sdf 
