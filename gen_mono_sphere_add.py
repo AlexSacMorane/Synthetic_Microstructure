@@ -21,11 +21,11 @@ from compute_minkowski import compute_minkowski
 #-------------------------------------------------------------------------------
 
 dim_sample = 150 # -
-porosity = 0.2 # -
+porosity = 0.1 # -
 dim_interface = 4 # -
-radius_sphere = 10 # -
+radius_sphere = 4 # -
 
-sample_id = '02'
+sample_id = '24'
 
 #-------------------------------------------------------------------------------
 # Generate the binary microstructure
@@ -52,21 +52,27 @@ while 1-np.sum(M_bin)/(dim_sample**3) > porosity:
                 if dist_sq < radius**2:
                     # periodic condition (x-axis)
                     if i_x < 0 :
-                        i_x = i_x + dim_sample
+                        i_x_p = i_x + dim_sample
                     elif i_x >= dim_sample :
-                        i_x = i_x - dim_sample
+                        i_x_p = i_x - dim_sample
+                    else: 
+                        i_x_p = i_x
                     # periodic condition (y-axis)
                     if i_y < 0 :
-                        i_y = i_y + dim_sample
+                        i_y_p = i_y + dim_sample
                     elif i_y >= dim_sample :
-                        i_y = i_y - dim_sample
+                        i_y_p = i_y - dim_sample
+                    else: 
+                        i_y_p = i_y
                     # periodic condition (z-axis)
                     if i_z < 0 :
-                        i_z = i_z + dim_sample
+                        i_z_p = i_z + dim_sample
                     elif i_z >= dim_sample :
-                        i_z = i_z - dim_sample
+                        i_z_p = i_z - dim_sample
+                    else: 
+                        i_z_p = i_z
                     # assign
-                    M_bin[i_x, i_y, i_z] = 1
+                    M_bin[i_x_p, i_y_p, i_z_p] = 1
 
 #-------------------------------------------------------------------------------
 # Compute the sdf 
