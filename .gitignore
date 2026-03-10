@@ -5,6 +5,10 @@ fft/*
 movie/*
 png/*
 
+# folver with external data
+
+SandAtlas/*
+
 # python environement
 .venv/*
 *.pyc
