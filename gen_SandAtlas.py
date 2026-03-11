@@ -26,9 +26,7 @@ dim_sample = 150 # -
 dim_interface = 4 # -
 
 # couscous, hotsun, leca
-type_im = 'hotsun'
-if type_im != 'hotsun':
-    raise ValueError('Are you sure about the following in the script ?')
+type_im = 'couscous'
 
 sample_id = '00'
 
@@ -48,6 +46,7 @@ if False : # set False if not necessary
     ax1.set_title('Histogram of the Image')
     plt.savefig('SandAtlas/hist_'+type_im+'.png')
     plt.close()
+
 
 # define the threshold for the segmentation
 threshold = 35000
@@ -151,13 +150,13 @@ for i_x in range(dim_sample):
 
 # save
 dict_fft = {'M_microstructure': Microstructure}
-with open('fft/SandAtlas/sa_hotsun_' + sample_id, 'wb') as handle:
+with open('fft/SandAtlas/sa_'+ type_im +'_' + sample_id, 'wb') as handle:
     pickle.dump(dict_fft, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
 # vtk file
 # change the array structure to verify the function
 Microstructure_vtk = np.transpose(Microstructure, (2, 1, 0))
-write_vtk_structured_points('vtk/SandAtlas/sa_hotsun_' + sample_id + '.vtk', Microstructure_vtk, spacing=(1.0, 1.0, 1.0), origin=(0, 0, 0), binary=False)  
+write_vtk_structured_points('vtk/SandAtlas/sa_'+ type_im +'_' + sample_id + '.vtk', Microstructure_vtk, spacing=(1.0, 1.0, 1.0), origin=(0, 0, 0), binary=False)  
 
 #-------------------------------------------------------------------------------
 # Check the connectivity and extract the connected pores
