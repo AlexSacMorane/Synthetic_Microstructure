@@ -55,17 +55,12 @@ dim_sample = 150 # -
 dim_interface = 4 # -
 
 namefile = 'Bentheimer_1000c_3p0035um'
-sample_id = '00'
-
-#-------------------------------------------------------------------------------
-# pp scans
-#-------------------------------------------------------------------------------
+sample_id = '07'
 
 # modify the microsctructure to obtain a given porosity
 pp = True 
-
 if pp:
-    porosity = 0.3
+    porosity = 0.8
 
 #-------------------------------------------------------------------------------
 # Read ct-scans
@@ -160,7 +155,6 @@ if pp:
             counter = counter + 1
             if counter % 500 == 0:
                 print("Dilation operations:", counter, " Current porosity:", round(1-np.sum(M_bin)/(dim_sample**3),2),'/', porosity)
-            counter = counter + 1
         print(counter, 'dilation operations to reach the porosity')
     
 #-------------------------------------------------------------------------------
