@@ -48,11 +48,14 @@ def load_itk(filename):
 # User
 #-------------------------------------------------------------------------------
 
+#database available
+#https://www.imperial.ac.uk/earth-science/research/research-groups/pore-scale-modelling/micro-ct-images-and-networks/ 
+
 dim_sample = 150 # -
 dim_interface = 4 # -
 
-namefile = 'Bentheimer_1000c_3p0035um'
-sample_id = '00'
+namefile = 'S9'
+sample_id = '21'
 
 #-------------------------------------------------------------------------------
 # Read ct-scans
