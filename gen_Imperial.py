@@ -2,7 +2,7 @@
 # Librairies
 #-------------------------------------------------------------------------------
 
-import skfmm, pickle
+import skfmm, pickle, scipy
 import numpy as np
 import matplotlib.pyplot as plt
 from skimage import io
@@ -54,8 +54,18 @@ def load_itk(filename):
 dim_sample = 150 # -
 dim_interface = 4 # -
 
-namefile = 'S9'
-sample_id = '21'
+namefile = 'Bentheimer_1000c_3p0035um'
+sample_id = '00'
+
+#-------------------------------------------------------------------------------
+# pp scans
+#-------------------------------------------------------------------------------
+
+# modify the microsctructure to obtain a given porosity
+pp = True 
+
+if pp:
+    porosity = 0.3
 
 #-------------------------------------------------------------------------------
 # Read ct-scans
@@ -69,12 +79,13 @@ print(M_bin.shape)
 # Extract and Plot
 #-------------------------------------------------------------------------------
 
-fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2,2, figsize=(16,9), num=1)
-ax1.imshow(M_bin[:, :, int(M_bin.shape[2]/2)])
-ax2.imshow(M_bin[:, int(M_bin.shape[2]/2), :])
-ax3.imshow(M_bin[int(M_bin.shape[2]/2), :, :])
-plt.savefig('Imperial/plot_'+namefile+'.png')
-plt.close()
+if not pp:
+    fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2,2, figsize=(16,9), num=1)
+    ax1.imshow(M_bin[:, :, int(M_bin.shape[2]/2)])
+    ax2.imshow(M_bin[:, int(M_bin.shape[2]/2), :])
+    ax3.imshow(M_bin[int(M_bin.shape[2]/2), :, :])
+    plt.savefig('Imperial/plot_'+namefile+'.png')
+    plt.close()
 
 #-------------------------------------------------------------------------------
 # Reduce the size of the array for a 150x150x150
@@ -99,12 +110,13 @@ for i in range(150):
             else: 
                 M_bin_cond[i, j, k] = 0 
 
-fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2,2, figsize=(16,9), num=1)
-ax1.imshow(M_bin_cond[:, :, int(M_bin_cond.shape[2]/2)])
-ax2.imshow(M_bin_cond[:, int(M_bin_cond.shape[2]/2), :])
-ax3.imshow(M_bin_cond[int(M_bin_cond.shape[2]/2), :, :])
-plt.savefig('Imperial/plot_cond_'+namefile+'.png')
-plt.close()
+if not pp:
+    fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2,2, figsize=(16,9), num=1)
+    ax1.imshow(M_bin_cond[:, :, int(M_bin_cond.shape[2]/2)])
+    ax2.imshow(M_bin_cond[:, int(M_bin_cond.shape[2]/2), :])
+    ax3.imshow(M_bin_cond[int(M_bin_cond.shape[2]/2), :, :])
+    plt.savefig('Imperial/plot_cond_'+namefile+'.png')
+    plt.close()
 
 print(M_bin_cond.shape)
 
@@ -114,6 +126,43 @@ print(M_bin_cond.shape)
 
 M_bin = M_bin_cond.copy()
 
+#-------------------------------------------------------------------------------
+# Apply erosion/dilation algorithm to reach a given porosity
+#-------------------------------------------------------------------------------
+
+if pp:
+    # define the elementary structure
+    struct = np.array(np.ones((2,2,2)))
+    counter = 0
+
+    # erosion
+    if 1 - np.sum(M_bin)/dim_sample**3 < porosity:
+        while 1 - np.sum(M_bin)/dim_sample**3 < porosity:
+            M_bin_eroded = scipy.ndimage.binary_erosion(M_bin, structure=struct, border_value=1).astype(M_bin.dtype)
+            M_available = M_bin-M_bin_eroded # map of available seed 
+            i_x, i_y, i_z = np.where(M_available==1) # extract the seed
+            L_i = np.random.choice(np.arange(len(i_x)), size=100,replace=False) # pick randomly a seed
+            for i in L_i:
+                M_bin[i_x[i], i_y[i], i_z[i]] = 0 # erode
+            counter = counter + 1
+            if counter % 500 == 0:
+                print("Erosion operations:", counter, " Current porosity:", round(1-np.sum(M_bin)/(dim_sample**3),2),'/', porosity)
+        print(counter, 'erosion operations to reach the porosity')
+    # dilation
+    else :
+        while porosity < 1 - np.sum(M_bin)/dim_sample**3:
+            M_bin_dilated = scipy.ndimage.binary_dilation(M_bin, structure=struct).astype(M_bin.dtype)
+            M_available = M_bin_dilated-M_bin # map of available seed 
+            i_x, i_y, i_z = np.where(M_available==1) # extract the seed
+            L_i = np.random.choice(np.arange(len(i_x)), size=100,replace=False) # pick randomly a seed
+            for i in L_i:
+                M_bin[i_x[i], i_y[i], i_z[i]] = 1 # dilate
+            counter = counter + 1
+            if counter % 500 == 0:
+                print("Dilation operations:", counter, " Current porosity:", round(1-np.sum(M_bin)/(dim_sample**3),2),'/', porosity)
+            counter = counter + 1
+        print(counter, 'dilation operations to reach the porosity')
+    
 #-------------------------------------------------------------------------------
 # Compute the sdf 
 #-------------------------------------------------------------------------------
@@ -153,15 +202,27 @@ for i_x in range(dim_sample):
 #plt.savefig('plot_microstructure.png')
 #plt.close()
 
-# save
-dict_fft = {'M_microstructure': Microstructure}
-with open('fft/Imperial/dict_fft_'+ sample_id, 'wb') as handle:
-    pickle.dump(dict_fft, handle, protocol=pickle.HIGHEST_PROTOCOL)
+if not pp:
+    # save
+    dict_fft = {'M_microstructure': Microstructure}
+    with open('fft/Imperial/dict_fft_'+ sample_id, 'wb') as handle:
+        pickle.dump(dict_fft, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
-# vtk file
-# change the array structure to verify the function
-Microstructure_vtk = np.transpose(Microstructure, (2, 1, 0))
-write_vtk_structured_points('vtk/Imperial/imp_'+ namefile +'_' + sample_id + '.vtk', Microstructure_vtk, spacing=(1.0, 1.0, 1.0), origin=(0, 0, 0), binary=False)  
+    # vtk file
+    # change the array structure to verify the function
+    Microstructure_vtk = np.transpose(Microstructure, (2, 1, 0))
+    write_vtk_structured_points('vtk/Imperial/imp_'+ namefile +'_' + sample_id + '.vtk', Microstructure_vtk, spacing=(1.0, 1.0, 1.0), origin=(0, 0, 0), binary=False)  
+
+else:
+    # save
+    dict_fft = {'M_microstructure': Microstructure}
+    with open('fft/Imperial_pp/dict_fft_'+ sample_id, 'wb') as handle:
+        pickle.dump(dict_fft, handle, protocol=pickle.HIGHEST_PROTOCOL)
+
+    # vtk file
+    # change the array structure to verify the function
+    Microstructure_vtk = np.transpose(Microstructure, (2, 1, 0))
+    write_vtk_structured_points('vtk/Imperial_pp/imp_pp_'+ namefile +'_' + sample_id + '.vtk', Microstructure_vtk, spacing=(1.0, 1.0, 1.0), origin=(0, 0, 0), binary=False)  
 
 #-------------------------------------------------------------------------------
 # Check the connectivity and extract the connected pores
