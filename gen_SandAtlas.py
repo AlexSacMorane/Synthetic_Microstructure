@@ -6,7 +6,6 @@ import skfmm, pickle
 import numpy as np
 import matplotlib.pyplot as plt
 from skimage import io
-import porespy as ps
 
 from scipy.ndimage import label
 

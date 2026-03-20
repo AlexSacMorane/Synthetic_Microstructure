@@ -5,9 +5,6 @@
 import skfmm, pickle, scipy
 import numpy as np
 import matplotlib.pyplot as plt
-from skimage import io
-import porespy as ps
-
 import SimpleITK as sitk
 
 from scipy.ndimage import label
