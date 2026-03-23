@@ -200,3 +200,9 @@ for id_m in np.unique(face_ym)[1:]:
         M_bin_extended_connected_y = M_bin_extended_connected_y + (labelled_image_y == id_m).astype(int)
 if not(connected_x and connected_y):
     print('not connected solids in all directions')
+
+#-------------------------------------------------------------------------------
+# Compute minkovski and tortuosity in 2D
+#-------------------------------------------------------------------------------
+
+# TO DO
