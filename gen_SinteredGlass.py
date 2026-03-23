@@ -23,13 +23,13 @@ from compute_minkowski import compute_minkowski
 dim_sample = 150 # -
 dim_interface = 4 # -
 
-namefile = '06'
-sample_id = '00'
+namefile = '12'
+sample_id = '12'
 
 # modify the microsctructure to obtain a given porosity
-pp = False 
+pp = True 
 if pp:
-    porosity = 0.8
+    porosity = 0.5
 
 #-------------------------------------------------------------------------------
 # Read ct-scans
@@ -180,15 +180,27 @@ for i_x in range(dim_sample):
 #plt.savefig('plot_microstructure.png')
 #plt.close()
 
-# save
-dict_fft = {'M_microstructure': Microstructure}
-with open('fft/SinteredGlass/dict_fft_'+ sample_id, 'wb') as handle:
-    pickle.dump(dict_fft, handle, protocol=pickle.HIGHEST_PROTOCOL)
+if not pp:
+    # save
+    dict_fft = {'M_microstructure': Microstructure}
+    with open('fft/SinteredGlass/dict_fft_'+ sample_id, 'wb') as handle:
+        pickle.dump(dict_fft, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
-# vtk file
-# change the array structure to verify the function
-Microstructure_vtk = np.transpose(Microstructure, (2, 1, 0))
-write_vtk_structured_points('vtk/SinteredGlass/sg_'+ namefile +'_' + sample_id + '.vtk', Microstructure_vtk, spacing=(1.0, 1.0, 1.0), origin=(0, 0, 0), binary=False)  
+    # vtk file
+    # change the array structure to verify the function
+    Microstructure_vtk = np.transpose(Microstructure, (2, 1, 0))
+    write_vtk_structured_points('vtk/SinteredGlass/sg_'+ namefile +'_' + sample_id + '.vtk', Microstructure_vtk, spacing=(1.0, 1.0, 1.0), origin=(0, 0, 0), binary=False)  
+
+else :
+    # save
+    dict_fft = {'M_microstructure': Microstructure}
+    with open('fft/SinteredGlass_pp/dict_fft_'+ sample_id, 'wb') as handle:
+        pickle.dump(dict_fft, handle, protocol=pickle.HIGHEST_PROTOCOL)
+
+    # vtk file
+    # change the array structure to verify the function
+    Microstructure_vtk = np.transpose(Microstructure, (2, 1, 0))
+    write_vtk_structured_points('vtk/SinteredGlass_pp/sg_pp_'+ namefile +'_' + sample_id + '.vtk', Microstructure_vtk, spacing=(1.0, 1.0, 1.0), origin=(0, 0, 0), binary=False)  
 
 #-------------------------------------------------------------------------------
 # Check the connectivity and extract the connected pores
