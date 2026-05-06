@@ -111,15 +111,21 @@ M_sd = M_sd_extended[:, :, dim_sample:2*dim_sample]
 #-------------------------------------------------------------------------------
 
 Microstructure = np.zeros((dim_sample, dim_sample, dim_sample))
+Microstructure_inv = np.zeros((dim_sample, dim_sample, dim_sample))
 for i_x in range(dim_sample):
     for i_y in range(dim_sample):
         for i_z in range(dim_sample):
             if M_sd[i_x, i_y, i_z] > dim_interface/2: # inside the grain
                 Microstructure[i_x, i_y, i_z] = 1
+                Microstructure_inv[i_x, i_y, i_z] = 0
             elif M_sd[i_x, i_y, i_z] < -dim_interface/2: # outside the grain
                 Microstructure[i_x, i_y, i_z] = 0
+                Microstructure_inv[i_x, i_y, i_z] = 0
             else : # in the interface
                 Microstructure[i_x, i_y, i_z] = 0.5 + M_sd[i_x, i_y, i_z]/dim_interface
+                Microstructure_inv[i_x, i_y, i_z] = 0.5 - M_sd[i_x, i_y, i_z]/dim_interface
+
+print('porosity corrected :', round(1-np.sum(Microstructure)/dim_sample**3,2))
                 
 #-------------------------------------------------------------------------------
 # Output
@@ -144,10 +150,17 @@ dict_fft = {'M_microstructure': Microstructure}
 with open('fft/spiral/dict_fft_'+sample_id, 'wb') as handle:
     pickle.dump(dict_fft, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
+dict_fft = {'M_microstructure': Microstructure_inv}
+with open('fft/spiral_inv/dict_fft_'+sample_id, 'wb') as handle:
+    pickle.dump(dict_fft, handle, protocol=pickle.HIGHEST_PROTOCOL)
+
 # vtk file
 # change the array structure to verify the function
 Microstructure_vtk = np.transpose(Microstructure, (2, 1, 0))
 write_vtk_structured_points('vtk/spiral/spiral_'+sample_id+'.vtk', Microstructure_vtk, spacing=(1.0, 1.0, 1.0), origin=(0, 0, 0), binary=False)  
+
+Microstructure_inv_vtk = np.transpose(Microstructure_inv, (2, 1, 0))
+write_vtk_structured_points('vtk/spiral_inv/spiral_inv_'+sample_id+'.vtk', Microstructure_inv_vtk, spacing=(1.0, 1.0, 1.0), origin=(0, 0, 0), binary=False)  
 
 #-------------------------------------------------------------------------------
 # Minkowski functionals
@@ -158,6 +171,10 @@ print("Computing the Minkowski functionals")
 M0, M1, M2, M3 = compute_minkowski(M_bin)
 
 print(f'M0 (porosity) = {M0:.3f}, M1 (specific surface area) = {M1:.3e}, M2 (mean grain size) = {M2:.3e}, M3 (Euler characteristic) = {M3:.3e} \n')
+
+M0, M1, M2, M3 = compute_minkowski(1-M_bin)
+
+print(f'inv M0 (porosity) = {M0:.3f}, M1 (specific surface area) = {M1:.3e}, M2 (mean grain size) = {M2:.3e}, M3 (Euler characteristic) = {M3:.3e} \n')
 
 #-------------------------------------------------------------------------------
 # fmm
