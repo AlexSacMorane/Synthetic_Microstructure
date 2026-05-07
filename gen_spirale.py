@@ -120,7 +120,7 @@ for i_x in range(dim_sample):
                 Microstructure_inv[i_x, i_y, i_z] = 0
             elif M_sd[i_x, i_y, i_z] < -dim_interface/2: # outside the grain
                 Microstructure[i_x, i_y, i_z] = 0
-                Microstructure_inv[i_x, i_y, i_z] = 0
+                Microstructure_inv[i_x, i_y, i_z] = 1
             else : # in the interface
                 Microstructure[i_x, i_y, i_z] = 0.5 + M_sd[i_x, i_y, i_z]/dim_interface
                 Microstructure_inv[i_x, i_y, i_z] = 0.5 - M_sd[i_x, i_y, i_z]/dim_interface
