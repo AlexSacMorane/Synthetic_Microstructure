@@ -179,7 +179,9 @@ for i_x in range(dim_sample):
                 Microstructure[i_x, i_y, i_z] = 0
             else : # in the interface
                 Microstructure[i_x, i_y, i_z] = 0.5 + M_sd[i_x, i_y, i_z]/dim_interface
-                
+
+print("porosity corrected:", round(1-np.sum(Microstructure)/dim_sample**3,2)) 
+              
 #-------------------------------------------------------------------------------
 # Output
 #-------------------------------------------------------------------------------
