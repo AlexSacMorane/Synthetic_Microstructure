@@ -23,8 +23,11 @@ from compute_minkowski import compute_minkowski
 dim_sample = 150 # -
 dim_interface = 4 # -
 
-namefile = '12'
-sample_id = '8'
+namefile = '06'
+sample_id = '0'
+
+# invert the microstructure
+inv = True
 
 # modify the microsctructure to obtain a given porosity
 pp = True 
@@ -105,6 +108,9 @@ print(M_bin_cond.shape)
 
 M_bin = M_bin_cond.copy()
 
+if inv:
+    M_bin = 1 - M_bin
+
 #-------------------------------------------------------------------------------
 # Apply erosion/dilation algorithm to reach a given porosity
 #-------------------------------------------------------------------------------
@@ -182,7 +188,7 @@ print('porosity corrected :', round(1-np.sum(Microstructure)/dim_sample**3,2))
 #plt.savefig('plot_microstructure.png')
 #plt.close()
 
-if not pp:
+if not pp and not inv:
     # save
     dict_fft = {'M_microstructure': Microstructure}
     with open('fft/SinteredGlass/dict_fft_'+ sample_id, 'wb') as handle:
@@ -193,7 +199,18 @@ if not pp:
     Microstructure_vtk = np.transpose(Microstructure, (2, 1, 0))
     write_vtk_structured_points('vtk/SinteredGlass/sg_'+ namefile +'_' + sample_id + '.vtk', Microstructure_vtk, spacing=(1.0, 1.0, 1.0), origin=(0, 0, 0), binary=False)  
 
-else :
+elif not pp and inv:
+    # save
+    dict_fft = {'M_microstructure': Microstructure}
+    with open('fft/SinteredGlass_inv/dict_fft_'+ sample_id, 'wb') as handle:
+        pickle.dump(dict_fft, handle, protocol=pickle.HIGHEST_PROTOCOL)
+
+    # vtk file
+    # change the array structure to verify the function
+    Microstructure_vtk = np.transpose(Microstructure, (2, 1, 0))
+    write_vtk_structured_points('vtk/SinteredGlass_inv/sg_inv_'+ namefile +'_' + sample_id + '.vtk', Microstructure_vtk, spacing=(1.0, 1.0, 1.0), origin=(0, 0, 0), binary=False)  
+
+elif pp and not inv:
     # save
     dict_fft = {'M_microstructure': Microstructure}
     with open('fft/SinteredGlass_pp/dict_fft_'+ sample_id, 'wb') as handle:
@@ -203,6 +220,17 @@ else :
     # change the array structure to verify the function
     Microstructure_vtk = np.transpose(Microstructure, (2, 1, 0))
     write_vtk_structured_points('vtk/SinteredGlass_pp/sg_pp_'+ namefile +'_' + sample_id + '.vtk', Microstructure_vtk, spacing=(1.0, 1.0, 1.0), origin=(0, 0, 0), binary=False)  
+
+elif pp and inv:
+    # save
+    dict_fft = {'M_microstructure': Microstructure}
+    with open('fft/SinteredGlass_inv_pp/dict_fft_'+ sample_id, 'wb') as handle:
+        pickle.dump(dict_fft, handle, protocol=pickle.HIGHEST_PROTOCOL)
+
+    # vtk file
+    # change the array structure to verify the function
+    Microstructure_vtk = np.transpose(Microstructure, (2, 1, 0))
+    write_vtk_structured_points('vtk/SinteredGlass_inv_pp/sg_inv_pp_'+ namefile +'_' + sample_id + '.vtk', Microstructure_vtk, spacing=(1.0, 1.0, 1.0), origin=(0, 0, 0), binary=False)
 
 #-------------------------------------------------------------------------------
 # Check the connectivity and extract the connected pores
