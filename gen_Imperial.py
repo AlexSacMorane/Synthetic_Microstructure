@@ -52,7 +52,9 @@ dim_sample = 150 # -
 dim_interface = 4 # -
 
 namefile = 'Bentheimer_1000c_3p0035um'
-sample_id = '07'
+sample_id = '00'
+
+inv = True # if True, the microstructure is inverted (solid phase becomes pore and vice versa)
 
 # modify the microsctructure to obtain a given porosity
 pp = True 
@@ -117,6 +119,9 @@ print(M_bin_cond.shape)
 #-------------------------------------------------------------------------------
 
 M_bin = M_bin_cond.copy()
+
+if inv:
+    M_bin = 1 - M_bin
 
 #-------------------------------------------------------------------------------
 # Apply erosion/dilation algorithm to reach a given porosity
@@ -193,7 +198,7 @@ for i_x in range(dim_sample):
 #plt.savefig('plot_microstructure.png')
 #plt.close()
 
-if not pp:
+if not pp and not inv:
     # save
     dict_fft = {'M_microstructure': Microstructure}
     with open('fft/Imperial/dict_fft_'+ sample_id, 'wb') as handle:
@@ -204,7 +209,18 @@ if not pp:
     Microstructure_vtk = np.transpose(Microstructure, (2, 1, 0))
     write_vtk_structured_points('vtk/Imperial/imp_'+ namefile +'_' + sample_id + '.vtk', Microstructure_vtk, spacing=(1.0, 1.0, 1.0), origin=(0, 0, 0), binary=False)  
 
-else:
+elif not pp and inv:
+    # save
+    dict_fft = {'M_microstructure': Microstructure}
+    with open('fft/Imperial_inv/dict_fft_'+ sample_id, 'wb') as handle:
+        pickle.dump(dict_fft, handle, protocol=pickle.HIGHEST_PROTOCOL)
+
+    # vtk file
+    # change the array structure to verify the function
+    Microstructure_vtk = np.transpose(Microstructure, (2, 1, 0))
+    write_vtk_structured_points('vtk/Imperial_inv/imp_inv_'+ namefile +'_' + sample_id + '.vtk', Microstructure_vtk, spacing=(1.0, 1.0, 1.0), origin=(0, 0, 0), binary=False)  
+
+elif pp and not inv:
     # save
     dict_fft = {'M_microstructure': Microstructure}
     with open('fft/Imperial_pp/dict_fft_'+ sample_id, 'wb') as handle:
@@ -214,6 +230,18 @@ else:
     # change the array structure to verify the function
     Microstructure_vtk = np.transpose(Microstructure, (2, 1, 0))
     write_vtk_structured_points('vtk/Imperial_pp/imp_pp_'+ namefile +'_' + sample_id + '.vtk', Microstructure_vtk, spacing=(1.0, 1.0, 1.0), origin=(0, 0, 0), binary=False)  
+
+elif pp and inv:
+    # save
+    dict_fft = {'M_microstructure': Microstructure}
+    with open('fft/Imperial_pp_inv/dict_fft_'+ sample_id, 'wb') as handle:
+        pickle.dump(dict_fft, handle, protocol=pickle.HIGHEST_PROTOCOL)
+
+    # vtk file
+    # change the array structure to verify the function
+    Microstructure_vtk = np.transpose(Microstructure, (2, 1, 0))
+    write_vtk_structured_points('vtk/Imperial_pp_inv/imp_pp_inv_'+ namefile +'_' + sample_id + '.vtk', Microstructure_vtk, spacing=(1.0, 1.0, 1.0), origin=(0, 0, 0), binary=False)  
+
 
 #-------------------------------------------------------------------------------
 # Check the connectivity and extract the connected pores
